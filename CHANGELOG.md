@@ -4,7 +4,7 @@
 
 ### Changed
 
-* Updated the changelog.
+* Updated the docs.
 
 ## [1.0.0]
 
