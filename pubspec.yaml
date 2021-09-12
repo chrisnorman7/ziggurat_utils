@@ -1,6 +1,6 @@
 name: ziggurat_utils
 description: Various utilities for use with the [ziggurat]([URL](https://pub.dev/packages/ziggurat)) package.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/chrisnorman7/ziggurat_utils
 
 environment:

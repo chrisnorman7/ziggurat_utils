@@ -1,3 +1,11 @@
-## 1.0.0
+# Changelog
 
-- Initial version.
+## [1.0.1]
+
+### Changed
+
+* Updated the changelog.
+
+## [1.0.0]
+
+Initial version.

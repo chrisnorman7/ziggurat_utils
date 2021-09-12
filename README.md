@@ -2,6 +2,16 @@
 
 This package provides various utilities for use with the [ziggurat]([URL](https://pub.dev/packages/ziggurat)) package.
 
+## Usage
+
+First, activate the package so you can use the scripts:
+
+```shell
+pub global activate ziggurat_utils
+```
+
+Next, see below for the scripts provided by this package.
+
 ## Contents
 
 ### data2json
