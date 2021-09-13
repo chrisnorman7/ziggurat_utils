@@ -1,6 +1,6 @@
 name: ziggurat_utils
+version: 1.0.2
 description: Various utilities for use with the [ziggurat]([URL](https://pub.dev/packages/ziggurat)) package.
-version: 1.0.1
 repository: https://github.com/chrisnorman7/ziggurat_utils
 
 environment:
@@ -20,5 +20,5 @@ executables:
 dependencies:
   args: ^2.2.0
   encrypt: ^5.0.1
-  ziggurat: ^0.10.1
-  ziggurat_sounds: ^0.0.0
+  ziggurat: ^0.13.0
+  ziggurat_sounds: ^0.2.0
