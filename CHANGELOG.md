@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.3]
+
+### Changed
+
+* Updated Ziggurat.
+
 ## [1.0.2]
 
 ### Changed

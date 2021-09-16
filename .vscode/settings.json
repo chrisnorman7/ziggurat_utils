@@ -3,7 +3,9 @@
     "abbr",
     "analyzer",
     "formals",
+    "math",
     "synthizer",
+    "var",
     "writeln"
   ]
 }
