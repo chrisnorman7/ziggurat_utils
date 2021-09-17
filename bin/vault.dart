@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:encrypt/encrypt.dart';
-import 'package:ziggurat/ziggurat.dart' show SoundType;
 import 'package:ziggurat_sounds/ziggurat_sounds.dart'
     show VaultFileStub, DataFileEntry, VaultFile;
 
@@ -324,30 +324,28 @@ class CompileCommand extends Command<void> {
     }
     final stub = VaultFileStub.fromFile(jsonFile);
     final vaultFile = VaultFile();
-    var comment = stub.comment;
     final stringBuffer = StringBuffer()
-      ..writeln('/// Automatically generated from $jsonFilename, do not edit.');
+      ..writeln('/// Automatically generated from $jsonFilename, do not edit.')
+      ..writeln("import 'dart:io';")
+      ..writeln("import 'dart:math';")
+      ..writeln("import 'package:dart_synthizer/dart_synthizer.dart';")
+      ..writeln("import 'package:ziggurat/ziggurat.dart';")
+      ..writeln("import 'package:ziggurat_sounds/ziggurat_sounds.dart';");
+    var comment = stub.comment;
     if (comment != null) {
       writeComment(comment, stringBuffer);
     }
     stringBuffer
-      ..writeln("import 'dart:io';")
-      ..writeln("import 'dart:math';")
-      ..writeln()
-      ..writeln("import 'package:dart_synthizer/dart_synthizer.dart';")
-      ..writeln("import 'package:ziggurat/ziggurat.dart';")
-      ..writeln("import 'package:ziggurat_sounds/ziggurat_sounds.dart';")
-      ..writeln()
       ..writeln('class $className extends BufferStore {')
-      ..writeln('  /// Create an instance.')
-      ..writeln('  $className(Random random, Synthizer synthizer, {'
+      ..writeln('/// Create an instance.')
+      ..writeln('$className(Random random, Synthizer synthizer, {'
           "this.vaultFileName = '$vaultFileName', "
           "this.encryptionKey = '$encryptionKey'})"
-          ' : super(random, synthizer);')
-      ..writeln('  /// The name of the vault file to load.')
-      ..writeln('  final String vaultFileName;')
-      ..writeln('  /// The encryption key to use to decrypt the vault file.')
-      ..writeln('  final String encryptionKey;');
+          ': super(random, synthizer);')
+      ..writeln('/// The name of the vault file to load.')
+      ..writeln('final String vaultFileName;')
+      ..writeln('/// The encryption key to use to decrypt the vault file.')
+      ..writeln('final String encryptionKey;');
     for (final entry in stub.folders) {
       final path = entry.fileName.replaceAll(r'\', '/');
       final folder = Directory(path);
@@ -358,8 +356,8 @@ class CompileCommand extends Command<void> {
         }
         final variableName = entry.variableName;
         stringBuffer
-          ..writeln("final $variableName = SoundReference('$variableName', "
-              '${SoundType.collection});');
+          ..writeln('final $variableName = SoundReference.collection('
+              "'$variableName');");
         final files = <String>[];
         for (final entity in folder.listSync()) {
           if (entity is File) {
@@ -375,39 +373,32 @@ class CompileCommand extends Command<void> {
       final path = entry.fileName.replaceAll(r'\', '/');
       final file = File(path);
       if (file.existsSync()) {
-        stringBuffer.writeln();
         final comment = entry.comment;
         if (comment != null) {
           writeComment(comment, stringBuffer);
         }
         final variableName = entry.variableName;
         stringBuffer
-          ..writeln("final $variableName = SoundReference('$variableName', "
-              '${SoundType.file});')
-          ..writeln();
+          ..writeln(
+              "final $variableName = SoundReference.file('$variableName');");
         vaultFile.files[variableName] = base64Encode(file.readAsBytesSync());
       } else {
         print('File $path does not exist.');
       }
     }
     stringBuffer
-      ..writeln('  /// Load the vault file.')
-      ..writeln('  Future<void> load() async {')
+      ..writeln('/// Load the vault file.')
+      ..writeln('Future<void> load() async {')
       ..writeln(
-          '    final vaultFile = await VaultFile.fromFile(File(vaultFileName), '
+          'final vaultFile = await VaultFile.fromFile(File(vaultFileName), '
           'encryptionKey);')
-      ..writeln('    addVaultFile(vaultFile);')
-      ..writeln('  }')
-      ..writeln('}');
-    dartFile.writeAsStringSync(stringBuffer.toString());
+      ..writeln('addVaultFile(vaultFile);')
+      ..writeln('}}');
+    final formatter = DartFormatter();
+    dartFile.writeAsStringSync(formatter.format(stringBuffer.toString()));
     print('Wrote file $dartFilename.');
     vaultFile.write(File(vaultFileName), encryptionKey);
     print('Wrote $vaultFileName.');
-    final result = await Process.run('dart', <String>['format', dartFilename]);
-    print(result.stdout);
-    if (result.exitCode != 0) {
-      print(result.stderr);
-    }
   }
 }
 

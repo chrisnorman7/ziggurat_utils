@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.4]
+
+### Changed
+
+* Use the [dart_style]([URL](https://pub.dev/packages/dart_style)) package for formatting.
+
 ## [1.0.3]
 
 ### Changed
