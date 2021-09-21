@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.5]
+
+### Changed
+
+* Updated [ziggurat]([URL](https://pub.dev/packages/ziggurat)).
+
 ## [1.0.4]
 
 ### Changed
