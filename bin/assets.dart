@@ -255,16 +255,20 @@ class RmCommand extends Command<void> {
     }
     final variableName = rest.last;
     final store = AssetStore.fromFile(file);
-    if (store.assets
-        .where((element) => element.variableName == variableName)
-        .isEmpty) {
-      return print('No entries found with the name $variableName.');
+    for (final reference in store.assets) {
+      if (reference.variableName == variableName) {
+        if (reference.reference.type == AssetType.collection) {
+          Directory(reference.reference.name).deleteSync(recursive: true);
+        } else {
+          File(reference.reference.name).deleteSync();
+        }
+        store.assets.remove(reference);
+        store.dump(file);
+        assetStoreToDart(store);
+        return print('Done.');
+      }
     }
-    store
-      ..assets.removeWhere((element) => element.variableName == variableName)
-      ..dump(file);
-    assetStoreToDart(store);
-    print('Done.');
+    print('No entries found with the name $variableName.');
   }
 }
 
