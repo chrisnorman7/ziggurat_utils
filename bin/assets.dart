@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dart_style/dart_style.dart';
+import 'package:ziggurat/ziggurat.dart' show AssetType;
 import 'package:ziggurat_sounds/ziggurat_sounds.dart';
 
 /// Dump the asset store [store] as Dart code.
@@ -187,6 +188,116 @@ class DirectoryCommand extends Command<void> {
   }
 }
 
+/// A command for changing the comment for an [AssetReferenceReference].
+class CommentCommand extends Command<void> {
+  /// Create an instance.
+  CommentCommand() {
+    argParser.addOption('comment',
+        abbr: 'c', help: 'The new comment (defaults to none).');
+  }
+  @override
+  String get description => 'Change asset comment';
+
+  @override
+  String get name => 'comment';
+
+  @override
+  void run() {
+    final results = argResults!;
+    final rest = results.rest;
+    if (rest.length != 2) {
+      return print(
+          'Usage: ${runner?.executableName} <json-file> <variableName>');
+    }
+    final file = File(rest.first);
+    if (file.existsSync() == false) {
+      return print('Error: Json file ${file.path} does not exist.');
+    }
+    final variableName = rest.last;
+    final store = AssetStore.fromFile(file);
+    for (var i = 0; i < store.assets.length; i++) {
+      final reference = store.assets[i];
+      if (reference.variableName == variableName) {
+        store.assets.remove(reference);
+        store.assets.insert(
+            i,
+            AssetReferenceReference(
+                variableName: reference.variableName,
+                reference: reference.reference,
+                comment: results['comment'] as String?));
+        store.dump(file);
+        assetStoreToDart(store);
+        return print('Done.');
+      }
+      print('Error: Could not find an entry with the name $variableName.');
+    }
+  }
+}
+
+/// A command to remove entries from a [AssetStore] instance.
+class RmCommand extends Command<void> {
+  @override
+  String get description => 'Remove an entry.';
+
+  @override
+  String get name => 'rm';
+
+  @override
+  void run() {
+    final rest = argResults!.rest;
+    if (rest.length != 2) {
+      return print(
+          'Usage: ${runner?.executableName} <json-file> <variableName>');
+    }
+    final file = File(rest.first);
+    if (file.existsSync() == false) {
+      return print('Error: Json file ${file.path} does not exist.');
+    }
+    final variableName = rest.last;
+    final store = AssetStore.fromFile(file);
+    if (store.assets
+        .where((element) => element.variableName == variableName)
+        .isEmpty) {
+      return print('No entries found with the name $variableName.');
+    }
+    store
+      ..assets.removeWhere((element) => element.variableName == variableName)
+      ..dump(file);
+    assetStoreToDart(store);
+    print('Done.');
+  }
+}
+
+/// A command for listing the contents of a [AssetStore] instance.
+class LsCommand extends Command<void> {
+  @override
+  String get description => 'List contents.';
+
+  @override
+  String get name => 'ls';
+
+  @override
+  void run() {
+    final rest = argResults!.rest;
+    if (rest.length != 1) {
+      return print('Usage: ${runner?.executableName} <json-file>');
+    }
+    final file = File(rest.first);
+    if (file.existsSync() == false) {
+      return print('Error: Json file ${file.path} does not exist.');
+    }
+    final store = AssetStore.fromFile(file);
+    print('--- ${file.path} ---');
+    if (store.assets.isEmpty) {
+      return print('No assets to show.');
+    }
+    for (final reference in store.assets) {
+      final type = reference.reference.type == AssetType.file ? 'F' : 'D';
+      print('${reference.variableName} ($type): ${reference.comment}');
+    }
+  }
+}
+
 /// A command to regenerate Dart code.
 class RegenerateCommand extends Command<void> {
   @override
@@ -217,6 +328,9 @@ Future<void> main(List<String> args) async {
     ..addCommand(CreateCommand())
     ..addCommand(FileCommand())
     ..addCommand(DirectoryCommand())
+    ..addCommand(CommentCommand())
+    ..addCommand(LsCommand())
+    ..addCommand(RmCommand())
     ..addCommand(RegenerateCommand());
   try {
     await command.run(args);

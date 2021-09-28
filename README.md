@@ -1,24 +1,26 @@
 # ziggurat_utils
 
-This package provides various utilities for use with the [ziggurat]([URL](https://pub.dev/packages/ziggurat)) package.
+This package provides various utilities for use with the [ziggurat](https://pub.dev/packages/ziggurat) package.
 
 ## Usage
 
 First, activate the package so you can use the scripts:
 
 ```shell
-pub global activate ziggurat_utils
+dart pub global activate ziggurat_utils
 ```
 
 Next, see below for the scripts provided by this package.
 
 ## Contents
 
+See `script -h` for more help on each script.
+
 ### data2json
 
 The `data2json` utility allows you to convert any file to pure dart code. This is useful if you want to hard code music into the code of your program so it doesn't not to be loaded from disk.
 
-### Usage
+#### Usage
 
 ```shell
 Convert data files into code via json.
@@ -44,11 +46,11 @@ Available commands:
 Run "data2json help <command>" for more information about a command.
 ```
 
-## vault
+### vault
 
 This utility allows you to encrypt multiple audio files into a single file and generate Dart code which lets you easily access those files from within your own code, without having to worry about file names or the encryption key.
 
-### Usage
+#### Usage
 
 ```shell
 Create and edit vault files.
@@ -72,3 +74,9 @@ Available commands:
 
 Run "vault help <command>" for more information about a command.
 ```
+
+#### assets
+
+This utility allows you to maintain a folder of many encrypted assets.
+
+The path and encryption key of each file shall be maintained for you in a JSON file, which can be converted to dart with the `assets build` command.
