@@ -314,7 +314,6 @@ class CompileCommand extends Command<void> {
     final jsonFile = File(jsonFilename);
     final vaultFileName = (results['vault-file-name'] as String?) ??
         '${jsonFilename.substring(0, jsonFilename.indexOf("."))}.dat';
-    final encryptionKey = SecureRandom(32).base64;
     if (jsonFile.existsSync() == false) {
       print('JSON file $jsonFilename does not exist.');
     }
@@ -322,6 +321,7 @@ class CompileCommand extends Command<void> {
     if (dartFile.existsSync()) {
       return print('Dart file $dartFilename already exists.');
     }
+    final encryptionKey = SecureRandom(32).base64;
     final stub = VaultFileStub.fromFile(jsonFile);
     final vaultFile = VaultFile();
     final stringBuffer = StringBuffer()
@@ -356,7 +356,7 @@ class CompileCommand extends Command<void> {
         }
         final variableName = entry.variableName;
         stringBuffer
-          ..writeln('final $variableName = SoundReference.collection('
+          ..writeln('final $variableName = AssetReference.collection('
               "'$variableName');");
         final files = <String>[];
         for (final entity in folder.listSync()) {
@@ -380,7 +380,7 @@ class CompileCommand extends Command<void> {
         final variableName = entry.variableName;
         stringBuffer
           ..writeln(
-              "final $variableName = SoundReference.file('$variableName');");
+              "final $variableName = AssetReference.file('$variableName');");
         vaultFile.files[variableName] = base64Encode(file.readAsBytesSync());
       } else {
         print('File $path does not exist.');
