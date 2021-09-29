@@ -75,8 +75,33 @@ Available commands:
 Run "vault help <command>" for more information about a command.
 ```
 
-#### assets
+### assets
 
 This utility allows you to maintain a folder of many encrypted assets.
 
 The path and encryption key of each file shall be maintained for you in a JSON file, which can be converted to dart with the `assets build` command.
+
+#### Usage
+
+```shell
+Create and edit asset stores.
+
+You must first create an asset store with the `create` command:
+  `assets create assets.json bin/assets.dart -c "Assets for the game."`
+
+Usage: assets <command> [arguments]
+
+Global options:
+-h, --help    Print this usage information.
+
+Available commands:
+  comment      Change asset comment
+  create       Create a new assets store.
+  directory    Add a directory.
+  file         Add a file.
+  ls           List contents.
+  regenerate   Regenerate Dart code.
+  rm           Remove an entry.
+
+Run "assets help <command>" for more information about a command.
+```

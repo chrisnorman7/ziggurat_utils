@@ -50,14 +50,17 @@ class CreateCommand extends Command<void> {
   void run() {
     final results = argResults!;
     final rest = results.rest;
-    if (rest.length != 2) {
-      return print(
-          'Usage: ${runner?.executableName} <json-filename> <dart-filename>');
+    if (rest.length != 3) {
+      return print('Usage: ${runner?.executableName} <json-filename> '
+          '<dart-filename> <destination-directory>');
     }
     final jsonFile = File(rest.first);
-    final dartFilename = rest.last;
+    final dartFilename = rest[1];
+    final destination = rest.last;
     final comment = results['comment'] as String?;
-    final store = AssetStore(dartFilename, comment: comment)..dump(jsonFile);
+    final store = AssetStore(
+        filename: dartFilename, destination: destination, comment: comment)
+      ..dump(jsonFile);
     print('Created asset store at ${jsonFile.path}.');
     assetStoreToDart(store);
     print('Created dart file ${store.filename}.');
@@ -71,12 +74,6 @@ class FileCommand extends Command<void> {
     argParser
       ..addOption('variable',
           abbr: 'v', mandatory: true, help: 'The variable name to use.')
-      ..addOption('source',
-          abbr: 's', mandatory: true, help: 'The source file to import.')
-      ..addOption('destination',
-          abbr: 'd',
-          mandatory: true,
-          help: 'The destination directory for the encrypted file.')
       ..addOption('comment',
           abbr: 'c', help: 'The comment to show above the reference.');
   }
@@ -91,22 +88,18 @@ class FileCommand extends Command<void> {
   void run() {
     final results = argResults!;
     final rest = results.rest;
-    if (rest.length != 1) {
-      return print('Usage: ${runner?.executableName} <json-file>');
+    if (rest.length != 2) {
+      return print(
+          'Usage: ${runner?.executableName} <json-file> <source-file>');
     }
     final jsonFile = File(rest.first);
     if (jsonFile.existsSync() == false) {
       return print('Error: Json file ${jsonFile.path} does not exist.');
     }
-    final source = File(results['source'] as String);
-    final destination = Directory(results['destination'] as String);
+    final source = File(rest.last);
     final variableName = results['variable'] as String;
     if (source.existsSync() == false) {
       return print('Error: Source file ${source.path} does not exist.');
-    }
-    if (destination.existsSync() == false) {
-      return print(
-          'Error: Destination directory ${destination.path} does not exist.');
     }
     final store = AssetStore.fromFile(jsonFile);
     for (final asset in store.assets) {
@@ -116,8 +109,7 @@ class FileCommand extends Command<void> {
     }
     store
       ..importFile(
-          file: source,
-          directory: destination,
+          source: source,
           variableName: variableName,
           comment: results['comment'] as String?)
       ..dump(jsonFile);
@@ -133,12 +125,6 @@ class DirectoryCommand extends Command<void> {
     argParser
       ..addOption('variable',
           abbr: 'v', mandatory: true, help: 'The variable name to use.')
-      ..addOption('source',
-          abbr: 's', mandatory: true, help: 'The source directory to import.')
-      ..addOption('destination',
-          abbr: 'd',
-          mandatory: true,
-          help: 'The destination directory for the encrypted files.')
       ..addOption('comment',
           abbr: 'c', help: 'The comment to show above the reference.');
   }
@@ -153,22 +139,18 @@ class DirectoryCommand extends Command<void> {
   void run() {
     final results = argResults!;
     final rest = results.rest;
-    if (rest.length != 1) {
-      return print('Usage: ${runner?.executableName} <json-file>');
+    if (rest.length != 2) {
+      return print(
+          'Usage: ${runner?.executableName} <json-file> <source-directory>');
     }
     final jsonFile = File(rest.first);
     if (jsonFile.existsSync() == false) {
       return print('Error: Json file ${jsonFile.path} does not exist.');
     }
-    final source = Directory(results['source'] as String);
-    final destination = Directory(results['destination'] as String);
+    final source = Directory(rest.last);
     final variableName = results['variable'] as String;
     if (source.existsSync() == false) {
       return print('Error: Source file ${source.path} does not exist.');
-    }
-    if (destination.existsSync() == false) {
-      return print(
-          'Error: Destination directory ${destination.path} does not exist.');
     }
     final store = AssetStore.fromFile(jsonFile);
     for (final asset in store.assets) {
@@ -178,8 +160,7 @@ class DirectoryCommand extends Command<void> {
     }
     store
       ..importDirectory(
-          directory: source,
-          destination: destination,
+          source: source,
           variableName: variableName,
           comment: results['comment'] as String?)
       ..dump(jsonFile);

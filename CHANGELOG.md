@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.6]
+
+### Added
+
+* Added the `assets` script.
+
+### Changed
+
+* Updated the `vault` script to produce Dart code that conforms to the latest Ziggurat API.
+
 ## [1.0.5]
 
 ### Changed
