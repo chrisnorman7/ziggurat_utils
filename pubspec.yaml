@@ -1,5 +1,5 @@
 name: ziggurat_utils
-version: 1.0.6
+version: 1.0.7
 description: Various utilities for use with the [ziggurat]([URL](https://pub.dev/packages/ziggurat)) package.
 repository: https://github.com/chrisnorman7/ziggurat_utils
 
@@ -11,8 +11,8 @@ dependencies:
   args: ^2.2.0
   dart_style: ^2.1.0
   encrypt: ^5.0.1
-  ziggurat: ^0.17.0
-  ziggurat_sounds: ^0.5.0
+  ziggurat: ^0.21.0
+  ziggurat_sounds: ^0.6.0
 
 dev_dependencies:
   lints: ^1.0.0
