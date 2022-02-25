@@ -59,8 +59,11 @@ class CreateCommand extends Command<void> {
     final destination = rest.last;
     final comment = results['comment'] as String?;
     final store = AssetStore(
-        filename: dartFilename, destination: destination, comment: comment)
-      ..dump(jsonFile);
+      filename: dartFilename,
+      destination: destination,
+      assets: [],
+      comment: comment,
+    )..dump(jsonFile);
     print('Created asset store at ${jsonFile.path}.');
     assetStoreToDart(store);
     print('Created dart file ${store.filename}.');
