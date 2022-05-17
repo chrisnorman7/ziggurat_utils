@@ -1,22 +1,21 @@
 name: ziggurat_utils
-version: 1.0.9
+version: 1.1.0
 description: Various utilities for use with the [ziggurat]([URL](https://pub.dev/packages/ziggurat)) package.
 repository: https://github.com/chrisnorman7/ziggurat_utils
 
 environment:
-  sdk: '>=2.14.0 <3.0.0'
-
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
-  args: ^2.2.0
-  dart_style: ^2.1.0
+  args: ^2.3.1
+  dart_style: ^2.2.3
   encrypt: ^5.0.1
-  ziggurat: ^0.38.0
-  ziggurat_sounds: ^0.18.1
+  ziggurat: ^0.44.0
+  ziggurat_sounds: ^0.24.0
 
 dev_dependencies:
-  lints: ^1.0.0
-  test: ^1.16.0
+  lints: ^2.0.0
+  test: ^1.21.1
 
 executables:
   assets: assets
