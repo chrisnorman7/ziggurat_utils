@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.0]
+
+### Changed
+
+* Updated the minimum SDK constraint.
+* Updated dependencies.
+* Added a trailing comma to generated assets code.
+* Use `const` keyword for generated assets.
+
 ## [1.0.9]
 
 ### Changed
