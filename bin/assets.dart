@@ -21,10 +21,10 @@ void assetStoreToDart(AssetStore store) {
     if (reference.comment != null) {
       buffer.writeln('/// ${reference.comment}');
     }
-    buffer.writeln('final ${reference.variableName} = AssetReference('
+    buffer.writeln('const ${reference.variableName} = AssetReference('
         "'${reference.reference.name.replaceAll(r'\', '/')}', "
         '${reference.reference.type}, '
-        "encryptionKey: '${reference.reference.encryptionKey}');");
+        "encryptionKey: '${reference.reference.encryptionKey}',);");
   }
   final formatter = DartFormatter();
   final code = formatter.format(buffer.toString());
