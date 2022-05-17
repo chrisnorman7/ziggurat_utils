@@ -8,7 +8,7 @@ import 'package:ziggurat/ziggurat.dart' show AssetType;
 import 'package:ziggurat_sounds/ziggurat_sounds.dart';
 
 /// Dump the asset store [store] as Dart code.
-void assetStoreToDart(AssetStore store) {
+void assetStoreToDart(final AssetStore store) {
   final buffer = StringBuffer()
     ..writeln('/// Automatically generated. Do not edit by hand.');
   if (store.comment != null) {
@@ -35,10 +35,11 @@ void assetStoreToDart(AssetStore store) {
 class CreateCommand extends Command<void> {
   /// Create the command.
   CreateCommand() {
-    argParser
-      ..addOption('comment',
-          abbr: 'c',
-          help: 'The comment to go at the top of the resulting Dart file');
+    argParser.addOption(
+      'comment',
+      abbr: 'c',
+      help: 'The comment to go at the top of the resulting Dart file',
+    );
   }
   @override
   String get description => 'Create a new assets store.';
@@ -75,10 +76,17 @@ class FileCommand extends Command<void> {
   /// Create the command.
   FileCommand() {
     argParser
-      ..addOption('variable',
-          abbr: 'v', mandatory: true, help: 'The variable name to use.')
-      ..addOption('comment',
-          abbr: 'c', help: 'The comment to show above the reference.');
+      ..addOption(
+        'variable',
+        abbr: 'v',
+        mandatory: true,
+        help: 'The variable name to use.',
+      )
+      ..addOption(
+        'comment',
+        abbr: 'c',
+        help: 'The comment to show above the reference.',
+      );
   }
 
   @override
@@ -93,7 +101,8 @@ class FileCommand extends Command<void> {
     final rest = results.rest;
     if (rest.length != 2) {
       return print(
-          'Usage: ${runner?.executableName} <json-file> <source-file>');
+        'Usage: ${runner?.executableName} <json-file> <source-file>',
+      );
     }
     final jsonFile = File(rest.first);
     if (jsonFile.existsSync() == false) {
@@ -112,9 +121,10 @@ class FileCommand extends Command<void> {
     }
     store
       ..importFile(
-          source: source,
-          variableName: variableName,
-          comment: results['comment'] as String?)
+        source: source,
+        variableName: variableName,
+        comment: results['comment'] as String?,
+      )
       ..dump(jsonFile);
     assetStoreToDart(store);
     print('Done.');
@@ -126,10 +136,17 @@ class DirectoryCommand extends Command<void> {
   /// Create the command.
   DirectoryCommand() {
     argParser
-      ..addOption('variable',
-          abbr: 'v', mandatory: true, help: 'The variable name to use.')
-      ..addOption('comment',
-          abbr: 'c', help: 'The comment to show above the reference.');
+      ..addOption(
+        'variable',
+        abbr: 'v',
+        mandatory: true,
+        help: 'The variable name to use.',
+      )
+      ..addOption(
+        'comment',
+        abbr: 'c',
+        help: 'The comment to show above the reference.',
+      );
   }
 
   @override
@@ -144,7 +161,8 @@ class DirectoryCommand extends Command<void> {
     final rest = results.rest;
     if (rest.length != 2) {
       return print(
-          'Usage: ${runner?.executableName} <json-file> <source-directory>');
+        'Usage: ${runner?.executableName} <json-file> <source-directory>',
+      );
     }
     final jsonFile = File(rest.first);
     if (jsonFile.existsSync() == false) {
@@ -163,9 +181,10 @@ class DirectoryCommand extends Command<void> {
     }
     store
       ..importDirectory(
-          source: source,
-          variableName: variableName,
-          comment: results['comment'] as String?)
+        source: source,
+        variableName: variableName,
+        comment: results['comment'] as String?,
+      )
       ..dump(jsonFile);
     assetStoreToDart(store);
     print('Done.');
@@ -176,8 +195,11 @@ class DirectoryCommand extends Command<void> {
 class CommentCommand extends Command<void> {
   /// Create an instance.
   CommentCommand() {
-    argParser.addOption('comment',
-        abbr: 'c', help: 'The new comment (defaults to none).');
+    argParser.addOption(
+      'comment',
+      abbr: 'c',
+      help: 'The new comment (defaults to none).',
+    );
   }
   @override
   String get description => 'Change asset comment';
@@ -191,7 +213,8 @@ class CommentCommand extends Command<void> {
     final rest = results.rest;
     if (rest.length != 2) {
       return print(
-          'Usage: ${runner?.executableName} <json-file> <variableName>');
+        'Usage: ${runner?.executableName} <json-file> <variableName>',
+      );
     }
     final file = File(rest.first);
     if (file.existsSync() == false) {
@@ -204,11 +227,13 @@ class CommentCommand extends Command<void> {
       if (reference.variableName == variableName) {
         store.assets.remove(reference);
         store.assets.insert(
-            i,
-            AssetReferenceReference(
-                variableName: reference.variableName,
-                reference: reference.reference,
-                comment: results['comment'] as String?));
+          i,
+          AssetReferenceReference(
+            variableName: reference.variableName,
+            reference: reference.reference,
+            comment: results['comment'] as String?,
+          ),
+        );
         store.dump(file);
         assetStoreToDart(store);
         return print('Done.');
@@ -231,7 +256,8 @@ class RmCommand extends Command<void> {
     final rest = argResults!.rest;
     if (rest.length != 2) {
       return print(
-          'Usage: ${runner?.executableName} <json-file> <variableName>');
+        'Usage: ${runner?.executableName} <json-file> <variableName>',
+      );
     }
     final file = File(rest.first);
     if (file.existsSync() == false) {
@@ -307,7 +333,7 @@ class RegenerateCommand extends Command<void> {
   }
 }
 
-Future<void> main(List<String> args) async {
+Future<void> main(final List<String> args) async {
   final command = CommandRunner<void>(
       'assets',
       'Create and edit asset stores.\n\n'

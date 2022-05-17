@@ -13,8 +13,11 @@ import 'package:ziggurat_sounds/ziggurat_sounds.dart'
 class CreateCommand extends Command<void> {
   /// Create an instance.
   CreateCommand() {
-    argParser.addOption('comment',
-        abbr: 'c', help: 'The comment to use for the resulting vault file.');
+    argParser.addOption(
+      'comment',
+      abbr: 'c',
+      help: 'The comment to use for the resulting vault file.',
+    );
   }
   @override
   final String name = 'create';
@@ -42,13 +45,17 @@ class CreateCommand extends Command<void> {
 class AddFileCommand extends Command<void> {
   AddFileCommand() {
     argParser
-      ..addOption('variable',
-          abbr: 'v',
-          help: 'The name of the resulting dart variable',
-          mandatory: true)
-      ..addOption('comment',
-          abbr: 'c',
-          help: 'The comment to show above the variable declaration');
+      ..addOption(
+        'variable',
+        abbr: 'v',
+        help: 'The name of the resulting dart variable',
+        mandatory: true,
+      )
+      ..addOption(
+        'comment',
+        abbr: 'c',
+        help: 'The comment to show above the variable declaration',
+      );
   }
   @override
   final String name = 'file';
@@ -98,13 +105,17 @@ class AddFileCommand extends Command<void> {
 class AddFolderCommand extends Command<void> {
   AddFolderCommand() {
     argParser
-      ..addOption('variable',
-          abbr: 'v',
-          help: 'The name of the resulting dart variable',
-          mandatory: true)
-      ..addOption('comment',
-          abbr: 'c',
-          help: 'The comment to show above the variable declaration');
+      ..addOption(
+        'variable',
+        abbr: 'v',
+        help: 'The name of the resulting dart variable',
+        mandatory: true,
+      )
+      ..addOption(
+        'comment',
+        abbr: 'c',
+        help: 'The comment to show above the variable declaration',
+      );
   }
   @override
   final String name = 'folder';
@@ -200,8 +211,11 @@ class LsCommand extends Command<void> {
 class CommentCommand extends Command<void> {
   /// Create an instance.
   CommentCommand() {
-    argParser.addOption('comment',
-        abbr: 'c', help: 'The new comment for the entry');
+    argParser.addOption(
+      'comment',
+      abbr: 'c',
+      help: 'The new comment for the entry',
+    );
   }
   @override
   final String name = 'comment';
@@ -231,7 +245,8 @@ class CommentCommand extends Command<void> {
         entry.comment = results['comment'] as String?;
         vaultFile.dump(file);
         return print(
-            'Comment ${entry.comment == null ? "cleared" : "changed"}.');
+          'Comment ${entry.comment == null ? "cleared" : "changed"}.',
+        );
       }
     }
     print('Variable $variableName not found.');
@@ -282,8 +297,11 @@ class RemoveCommand extends Command<void> {
 class CompileCommand extends Command<void> {
   /// Create the command.
   CompileCommand() {
-    argParser.addOption('vault-file-name',
-        abbr: 'f', help: 'The name to use for the resulting vault file.');
+    argParser.addOption(
+      'vault-file-name',
+      abbr: 'f',
+      help: 'The name to use for the resulting vault file.',
+    );
   }
   @override
   final String name = 'compile';
@@ -292,7 +310,7 @@ class CompileCommand extends Command<void> {
       'Create an encrypted vault file and corresponding Dart code.';
 
   /// Write a comment to [buffer].
-  void writeComment(String comment, StringBuffer buffer) {
+  void writeComment(final String comment, final StringBuffer buffer) {
     for (final line in comment.split('\n')) {
       buffer.writeln('/// $line');
     }
@@ -355,9 +373,8 @@ class CompileCommand extends Command<void> {
           writeComment(comment, stringBuffer);
         }
         final variableName = entry.variableName;
-        stringBuffer
-          ..writeln('final $variableName = AssetReference.collection('
-              "'$variableName');");
+        stringBuffer.writeln('final $variableName = AssetReference.collection('
+            "'$variableName');");
         final files = <String>[];
         for (final entity in folder.listSync()) {
           if (entity is File) {
@@ -378,9 +395,9 @@ class CompileCommand extends Command<void> {
           writeComment(comment, stringBuffer);
         }
         final variableName = entry.variableName;
-        stringBuffer
-          ..writeln(
-              "final $variableName = AssetReference.file('$variableName');");
+        stringBuffer.writeln(
+          "final $variableName = AssetReference.file('$variableName');",
+        );
         vaultFile.files[variableName] = base64Encode(file.readAsBytesSync());
       } else {
         print('File $path does not exist.');
@@ -402,7 +419,7 @@ class CompileCommand extends Command<void> {
   }
 }
 
-Future<void> main(List<String> args) async {
+Future<void> main(final List<String> args) async {
   final command = CommandRunner<void>(
       'vault',
       'Create and edit vault files.\n\n'

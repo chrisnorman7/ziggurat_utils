@@ -48,9 +48,11 @@ class LsCommand extends Command<void> {
 class CreateCommand extends Command<void> {
   /// Create an instance.
   CreateCommand() {
-    argParser.addOption('comment',
-        abbr: 'c',
-        help: 'The comment to put at the top of the resulting Dart file');
+    argParser.addOption(
+      'comment',
+      abbr: 'c',
+      help: 'The comment to put at the top of the resulting Dart file',
+    );
   }
   @override
   final String name = 'create';
@@ -84,15 +86,23 @@ class AddFileCommand extends Command<void> {
   /// Create the instance.
   AddFileCommand() {
     argParser
-      ..addOption('filename',
-          abbr: 'f', help: 'The name of the file to add', mandatory: true)
-      ..addOption('variable',
-          abbr: 'v',
-          help: 'The name of the resulting dart variable',
-          mandatory: true)
-      ..addOption('comment',
-          abbr: 'c',
-          help: 'The comment to show above the variable declaration');
+      ..addOption(
+        'filename',
+        abbr: 'f',
+        help: 'The name of the file to add',
+        mandatory: true,
+      )
+      ..addOption(
+        'variable',
+        abbr: 'v',
+        help: 'The name of the resulting dart variable',
+        mandatory: true,
+      )
+      ..addOption(
+        'comment',
+        abbr: 'c',
+        help: 'The comment to show above the variable declaration',
+      );
   }
   @override
   final String name = 'add';
@@ -127,8 +137,11 @@ class AddFileCommand extends Command<void> {
 class CommentCommand extends Command<void> {
   /// Create an instance.
   CommentCommand() {
-    argParser.addOption('comment',
-        abbr: 'c', help: 'The new comment for the entry');
+    argParser.addOption(
+      'comment',
+      abbr: 'c',
+      help: 'The new comment for the entry',
+    );
   }
   @override
   final String name = 'comment';
@@ -153,7 +166,8 @@ class CommentCommand extends Command<void> {
               entry.comment = results['comment'] as String?;
               dataFile.dump(file);
               print(
-                  'Comment ${entry.comment == null ? "cleared" : "changed"}.');
+                'Comment ${entry.comment == null ? "cleared" : "changed"}.',
+              );
               return;
             }
           }
@@ -230,7 +244,8 @@ class CompileCommand extends Command<void> {
             var comment = dataFile.comment;
             final stringBuffer = StringBuffer()
               ..writeln(
-                  '/// Automatically generated from $jsonFilename, do not edit.');
+                '/// Automatically generated from $jsonFilename, do not edit.',
+              );
             if (comment != null) {
               for (final line in comment.split('\n')) {
                 stringBuffer.writeln('/// $line');
@@ -267,7 +282,7 @@ class CompileCommand extends Command<void> {
   }
 }
 
-Future<void> main(List<String> args) async {
+Future<void> main(final List<String> args) async {
   final command = CommandRunner<void>(
       'data2json',
       'Convert data files into code via json.\n\n'
