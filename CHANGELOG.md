@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0]
+
+### Changed
+
+* Use question and answer instead of command line arguments.
+
 ## [1.1.0]
 
 ### Changed
