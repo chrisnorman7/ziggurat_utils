@@ -7,6 +7,8 @@ import 'package:dart_style/dart_style.dart';
 import 'package:ziggurat/ziggurat.dart' show AssetType;
 import 'package:ziggurat_sounds/ziggurat_sounds.dart';
 
+import 'common.dart';
+
 /// Dump the asset store [store] as Dart code.
 void assetStoreToDart(final AssetStore store) {
   final buffer = StringBuffer()
@@ -33,14 +35,6 @@ void assetStoreToDart(final AssetStore store) {
 
 /// A command for creating a new assets file.
 class CreateCommand extends Command<void> {
-  /// Create the command.
-  CreateCommand() {
-    argParser.addOption(
-      'comment',
-      abbr: 'c',
-      help: 'The comment to go at the top of the resulting Dart file',
-    );
-  }
   @override
   String get description => 'Create a new assets store.';
 
@@ -49,16 +43,22 @@ class CreateCommand extends Command<void> {
 
   @override
   void run() {
-    final results = argResults!;
-    final rest = results.rest;
-    if (rest.length != 3) {
-      return print('Usage: ${runner?.executableName} <json-filename> '
-          '<dart-filename> <destination-directory>');
+    final jsonFile = getJsonFile();
+    if (!validFile(jsonFile)) {
+      return;
     }
-    final jsonFile = File(rest.first);
-    final dartFilename = rest[1];
-    final destination = rest.last;
-    final comment = results['comment'] as String?;
+    final dartFilename = getText(
+      message: 'Dart filename:',
+      defaultValue: 'lib/assets.dart',
+    );
+    final destination = getText(
+      message: 'Directory where encrypted files should be stored:',
+      defaultValue: 'assets',
+    );
+    final comment = getText(
+      message: 'File comment:',
+      defaultValue: 'Game assets.',
+    );
     final store = AssetStore(
       filename: dartFilename,
       destination: destination,
@@ -73,22 +73,6 @@ class CreateCommand extends Command<void> {
 
 /// A command for adding files to an [AssetStore].
 class FileCommand extends Command<void> {
-  /// Create the command.
-  FileCommand() {
-    argParser
-      ..addOption(
-        'variable',
-        abbr: 'v',
-        mandatory: true,
-        help: 'The variable name to use.',
-      )
-      ..addOption(
-        'comment',
-        abbr: 'c',
-        help: 'The comment to show above the reference.',
-      );
-  }
-
   @override
   String get description => 'Add a file.';
 
@@ -97,19 +81,19 @@ class FileCommand extends Command<void> {
 
   @override
   void run() {
-    final results = argResults!;
-    final rest = results.rest;
-    if (rest.length != 2) {
-      return print(
-        'Usage: ${runner?.executableName} <json-file> <source-file>',
-      );
+    final jsonFile = getJsonFile();
+    if (!validFile(jsonFile)) {
+      return;
     }
-    final jsonFile = File(rest.first);
-    if (jsonFile.existsSync() == false) {
-      return print('Error: Json file ${jsonFile.path} does not exist.');
+    final source = File(
+      getText(
+        message: 'Source filename:',
+      ),
+    );
+    final variableName = getVariableName();
+    if (!validVariableName(variableName)) {
+      return;
     }
-    final source = File(rest.last);
-    final variableName = results['variable'] as String;
     if (source.existsSync() == false) {
       return print('Error: Source file ${source.path} does not exist.');
     }
@@ -123,7 +107,7 @@ class FileCommand extends Command<void> {
       ..importFile(
         source: source,
         variableName: variableName,
-        comment: results['comment'] as String?,
+        comment: getComment(),
       )
       ..dump(jsonFile);
     assetStoreToDart(store);
@@ -133,22 +117,6 @@ class FileCommand extends Command<void> {
 
 /// A command for adding directories to an [AssetStore].
 class DirectoryCommand extends Command<void> {
-  /// Create the command.
-  DirectoryCommand() {
-    argParser
-      ..addOption(
-        'variable',
-        abbr: 'v',
-        mandatory: true,
-        help: 'The variable name to use.',
-      )
-      ..addOption(
-        'comment',
-        abbr: 'c',
-        help: 'The comment to show above the reference.',
-      );
-  }
-
   @override
   String get description => 'Add a directory.';
 
@@ -157,19 +125,15 @@ class DirectoryCommand extends Command<void> {
 
   @override
   void run() {
-    final results = argResults!;
-    final rest = results.rest;
-    if (rest.length != 2) {
-      return print(
-        'Usage: ${runner?.executableName} <json-file> <source-directory>',
-      );
+    final jsonFile = getJsonFile();
+    if (!validFile(jsonFile)) {
+      return;
     }
-    final jsonFile = File(rest.first);
-    if (jsonFile.existsSync() == false) {
-      return print('Error: Json file ${jsonFile.path} does not exist.');
+    final source = Directory(getText(message: 'Source directory name:'));
+    final variableName = getVariableName();
+    if (!validVariableName(variableName)) {
+      return;
     }
-    final source = Directory(rest.last);
-    final variableName = results['variable'] as String;
     if (source.existsSync() == false) {
       return print('Error: Source file ${source.path} does not exist.');
     }
@@ -183,7 +147,7 @@ class DirectoryCommand extends Command<void> {
       ..importDirectory(
         source: source,
         variableName: variableName,
-        comment: results['comment'] as String?,
+        comment: getComment(),
       )
       ..dump(jsonFile);
     assetStoreToDart(store);
@@ -191,16 +155,45 @@ class DirectoryCommand extends Command<void> {
   }
 }
 
+/// A command for changing the variable name of an asset.
+class RenameCommand extends Command<void> {
+  @override
+  String get description => 'Change asset variable name';
+  @override
+  String get name => 'rename';
+
+  /// Run the command.
+  @override
+  void run() {
+    final jsonFile = getJsonFile();
+    if (!validFile(jsonFile)) {
+      return;
+    }
+    final oldVariableName = getText(message: 'Old variable name:');
+    final store = AssetStore.fromFile(jsonFile);
+    for (final asset in store.assets) {
+      if (asset.variableName == oldVariableName) {
+        store.assets.removeWhere(
+          (final element) => element.variableName == oldVariableName,
+        );
+        store.assets.add(
+          AssetReferenceReference(
+            variableName: getVariableName(),
+            reference: asset.reference,
+            comment: asset.comment,
+          ),
+        );
+        store.dump(jsonFile);
+        assetStoreToDart(store);
+        return print('Done.');
+      }
+    }
+    print('No entry with the variable name $oldVariableName found.');
+  }
+}
+
 /// A command for changing the comment for an [AssetReferenceReference].
 class CommentCommand extends Command<void> {
-  /// Create an instance.
-  CommentCommand() {
-    argParser.addOption(
-      'comment',
-      abbr: 'c',
-      help: 'The new comment (defaults to none).',
-    );
-  }
   @override
   String get description => 'Change asset comment';
 
@@ -209,37 +202,33 @@ class CommentCommand extends Command<void> {
 
   @override
   void run() {
-    final results = argResults!;
-    final rest = results.rest;
-    if (rest.length != 2) {
-      return print(
-        'Usage: ${runner?.executableName} <json-file> <variableName>',
-      );
+    final jsonFile = getJsonFile();
+    if (!validFile(jsonFile)) {
+      return;
     }
-    final file = File(rest.first);
-    if (file.existsSync() == false) {
-      return print('Error: Json file ${file.path} does not exist.');
-    }
-    final variableName = rest.last;
-    final store = AssetStore.fromFile(file);
-    for (var i = 0; i < store.assets.length; i++) {
-      final reference = store.assets[i];
+    final variableName = getText(message: 'Variable to change:');
+    final store = AssetStore.fromFile(jsonFile);
+    for (final reference in store.assets) {
       if (reference.variableName == variableName) {
-        store.assets.remove(reference);
-        store.assets.insert(
-          i,
+        store.assets.removeWhere(
+          (final element) => element.variableName == variableName,
+        );
+        store.assets.add(
           AssetReferenceReference(
             variableName: reference.variableName,
             reference: reference.reference,
-            comment: results['comment'] as String?,
+            comment: getText(
+              message: 'New comment:',
+              defaultValue: reference.comment ?? '',
+            ),
           ),
         );
-        store.dump(file);
+        store.dump(jsonFile);
         assetStoreToDart(store);
         return print('Done.');
       }
-      print('Error: Could not find an entry with the name $variableName.');
     }
+    print('Error: Could not find an entry with the name $variableName.');
   }
 }
 
@@ -253,18 +242,12 @@ class RmCommand extends Command<void> {
 
   @override
   void run() {
-    final rest = argResults!.rest;
-    if (rest.length != 2) {
-      return print(
-        'Usage: ${runner?.executableName} <json-file> <variableName>',
-      );
+    final jsonFile = getJsonFile();
+    if (!validFile(jsonFile)) {
+      return;
     }
-    final file = File(rest.first);
-    if (file.existsSync() == false) {
-      return print('Error: Json file ${file.path} does not exist.');
-    }
-    final variableName = rest.last;
-    final store = AssetStore.fromFile(file);
+    final variableName = getText(message: 'Variable name:');
+    final store = AssetStore.fromFile(jsonFile);
     for (final reference in store.assets) {
       if (reference.variableName == variableName) {
         if (reference.reference.type == AssetType.collection) {
@@ -273,7 +256,7 @@ class RmCommand extends Command<void> {
           File(reference.reference.name).deleteSync();
         }
         store.assets.remove(reference);
-        store.dump(file);
+        store.dump(jsonFile);
         assetStoreToDart(store);
         return print('Done.');
       }
@@ -292,16 +275,12 @@ class LsCommand extends Command<void> {
 
   @override
   void run() {
-    final rest = argResults!.rest;
-    if (rest.length != 1) {
-      return print('Usage: ${runner?.executableName} <json-file>');
+    final jsonFile = getJsonFile();
+    if (!validFile(jsonFile)) {
+      return;
     }
-    final file = File(rest.first);
-    if (file.existsSync() == false) {
-      return print('Error: Json file ${file.path} does not exist.');
-    }
-    final store = AssetStore.fromFile(file);
-    print('--- ${file.path} ---');
+    final store = AssetStore.fromFile(jsonFile);
+    print('--- ${jsonFile.path} ---');
     if (store.assets.isEmpty) {
       return print('No assets to show.');
     }
@@ -322,12 +301,11 @@ class RegenerateCommand extends Command<void> {
 
   @override
   void run() {
-    final rest = argResults!.rest;
-    if (rest.length != 1) {
-      return print('Usage: ${runner?.executableName} <json-filename>');
+    final jsonFile = getJsonFile();
+    if (!validFile(jsonFile)) {
+      return;
     }
-    final file = File(rest.first);
-    final store = AssetStore.fromFile(file);
+    final store = AssetStore.fromFile(jsonFile);
     assetStoreToDart(store);
     print('Done.');
   }
@@ -342,6 +320,7 @@ Future<void> main(final List<String> args) async {
     ..addCommand(CreateCommand())
     ..addCommand(FileCommand())
     ..addCommand(DirectoryCommand())
+    ..addCommand(RenameCommand())
     ..addCommand(CommentCommand())
     ..addCommand(LsCommand())
     ..addCommand(RmCommand())
