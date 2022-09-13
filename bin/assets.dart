@@ -4,9 +4,15 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dart_style/dart_style.dart';
+import 'package:path/path.dart' as path;
+import 'package:uuid/uuid.dart';
 import 'package:ziggurat/ziggurat.dart' hide Command;
 
 import 'common.dart';
+
+const uuid = Uuid();
+const outputDirectoryKey = 'output-directory';
+const codeDirectoryKey = 'code-directory';
 
 /// Dump the asset store [store] as Dart code.
 void assetStoreToDart(final AssetStore store) {
@@ -311,6 +317,106 @@ class RegenerateCommand extends Command<void> {
   }
 }
 
+/// A command to generate assets from a directory.
+class GenerateCommand extends Command<void> {
+  /// Create an instance.
+  GenerateCommand() : super() {
+    argParser
+      ..addOption(
+        outputDirectoryKey,
+        abbr: 'o',
+        defaultsTo: 'assets',
+        help: 'The directory to write assets to',
+      )
+      ..addOption(
+        codeDirectoryKey,
+        abbr: 'c',
+        defaultsTo: 'lib/src/assets',
+        help: 'The directory where generated code will be placed',
+      );
+  }
+
+  @override
+  String get description =>
+      'Generate a directory of encrypted assets from an input directory.';
+
+  @override
+  String get name => 'generate';
+
+  /// Run the command.
+  @override
+  void run() {
+    final results = argResults!;
+    if (results.rest.isEmpty) {
+      print('Nothing to do: No input directories provided.');
+      return;
+    }
+    final codeDirectory = Directory(results[codeDirectoryKey] as String);
+    if (!codeDirectory.existsSync()) {
+      codeDirectory.createSync(recursive: true);
+    } else {
+      for (final entity in codeDirectory.listSync()) {
+        entity.deleteSync(recursive: true);
+      }
+    }
+    final outputDirectory = Directory(results[outputDirectoryKey] as String);
+    if (!outputDirectory.existsSync()) {
+      outputDirectory.createSync(recursive: true);
+    } else {
+      for (final entity in outputDirectory.listSync()) {
+        entity.deleteSync(recursive: true);
+      }
+    }
+    for (final directoryName in results.rest) {
+      final directory = Directory(directoryName);
+      if (!directory.existsSync()) {
+        print('Directory $directoryName does not exist.');
+        continue;
+      }
+      print('Entering directory $directoryName.');
+      for (final subdirectory in directory.listSync().whereType<Directory>()) {
+        final store = AssetStore(
+          filename: path.join(
+            codeDirectory.path,
+            '${path.basenameWithoutExtension(subdirectory.path)}.dart',
+          ),
+          destination:
+              path.join(outputDirectory.path, path.basename(subdirectory.path)),
+          assets: [],
+          comment: subdirectory.path,
+        );
+        for (final entity in subdirectory.listSync()) {
+          final variableName = makeVariableName(
+            path.basenameWithoutExtension(entity.path),
+          );
+          if (entity is File) {
+            print('Importing file ${entity.path}.');
+            store.importFile(
+              source: entity,
+              variableName: variableName,
+              comment: entity.path,
+              relativeTo: Directory.current,
+            );
+          } else if (entity is Directory) {
+            print('Importing directory ${entity.path}.');
+            store.importDirectory(
+              source: entity,
+              variableName: variableName,
+              comment: entity.path,
+              relativeTo: Directory.current,
+            );
+          } else {
+            throw ArgumentError('Cannot import $entity.');
+          }
+        }
+        assetStoreToDart(store);
+        print('Wrote ${store.filename}.');
+      }
+      print('Leaving directory $directoryName.');
+    }
+  }
+}
+
 Future<void> main(final List<String> args) async {
   final command = CommandRunner<void>(
       'assets',
@@ -324,7 +430,8 @@ Future<void> main(final List<String> args) async {
     ..addCommand(CommentCommand())
     ..addCommand(LsCommand())
     ..addCommand(RmCommand())
-    ..addCommand(RegenerateCommand());
+    ..addCommand(RegenerateCommand())
+    ..addCommand(GenerateCommand());
   try {
     await command.run(args);
   } on UsageException catch (e) {

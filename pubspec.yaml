@@ -10,6 +10,7 @@ dependencies:
   args: ^2.3.1
   dart_style: ^2.2.3
   encrypt: ^5.0.1
+  file: ^6.1.4
   path: ^1.8.2
   uuid: ^3.0.6
   ziggurat: ^0.50.2

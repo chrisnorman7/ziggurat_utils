@@ -58,3 +58,20 @@ bool validFile(
   print(message ?? 'Error: file ${file.path} does not exist.');
   return false;
 }
+
+/// Make a variable name from the given [name].
+String makeVariableName(final String name) {
+  final words = name.split('_');
+  final buffer = StringBuffer();
+  for (var i = 0; i < words.length; i++) {
+    final word = words[i];
+    if (i == 0) {
+      buffer.write(word);
+    } else {
+      buffer
+        ..write(word.substring(0, 1).toUpperCase())
+        ..write(word.substring(1).toLowerCase());
+    }
+  }
+  return buffer.toString();
+}

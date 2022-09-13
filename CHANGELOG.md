@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.0]
+
+### Added
+
+* Added the `generate` subcommand to the `assets` command.
+
+### Removed
+
+* Removed the old vault and data2json scripts.
+
 ## [1.2.0]
 
 ### Changed
