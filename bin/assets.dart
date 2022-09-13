@@ -4,8 +4,7 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dart_style/dart_style.dart';
-import 'package:ziggurat/ziggurat.dart' show AssetType;
-import 'package:ziggurat_sounds/ziggurat_sounds.dart';
+import 'package:ziggurat/ziggurat.dart' hide Command;
 
 import 'common.dart';
 
@@ -23,10 +22,11 @@ void assetStoreToDart(final AssetStore store) {
     if (reference.comment != null) {
       buffer.writeln('/// ${reference.comment}');
     }
-    buffer.writeln('const ${reference.variableName} = AssetReference('
-        "'${reference.reference.name.replaceAll(r'\', '/')}', "
-        '${reference.reference.type}, '
-        "encryptionKey: '${reference.reference.encryptionKey}',);");
+    buffer
+      ..writeln('const ${reference.variableName} = AssetReference(')
+      ..write("'${reference.reference.name.replaceAll(r'\', '/')}', "
+          '${reference.reference.type}, '
+          "encryptionKey: '${reference.reference.encryptionKey}',);");
   }
   final formatter = DartFormatter();
   final code = formatter.format(buffer.toString());

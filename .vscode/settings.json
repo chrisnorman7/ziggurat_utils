@@ -3,6 +3,7 @@
     "abbr",
     "analyzer",
     "bools",
+    "encrypter",
     "formals",
     "math",
     "pubspec",
