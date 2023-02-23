@@ -13,7 +13,7 @@ dependencies:
   file: ^6.1.4
   path: ^1.8.2
   uuid: ^3.0.6
-  ziggurat: ^0.50.2
+  ziggurat: ^0.58.0
 
 dev_dependencies:
   lints: ^2.0.0
